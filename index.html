@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Matritsalarni ko'paytirish</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#12151c; --panel:#1a1e28; --panel2:#20242f; --ink:#eae6da;
+  --muted:#8b93a3; --line:#2c3140; --amber:#d7a24a; --teal:#4fa8a0;
+  --danger:#c96a5a;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+  box-sizing:border-box;
+}
+*{box-sizing:border-box;}
+html{scroll-padding-top:env(safe-area-inset-top,0px);}
+body{
+  margin:0; background:var(--bg); color:var(--ink);
+  font-family:'IBM Plex Mono',monospace;
+  min-height:100%;
+  padding:28px 18px 40px;
+}
+h1{
+  font-family:'Fraunces',serif; font-weight:600; font-size:clamp(22px,4vw,32px);
+  margin:0 0 4px; letter-spacing:-0.01em;
+}
+.sub{color:var(--muted); font-size:13.5px; margin:0 0 26px; max-width:60ch; line-height:1.5;}
+.wrap{max-width:920px; margin:0 auto;}
+
+.setup{
+  background:var(--panel); border:1px solid var(--line); border-radius:10px;
+  padding:18px 20px; margin-bottom:22px;
+}
+.setup-row{display:flex; flex-wrap:wrap; gap:22px; align-items:flex-end;}
+.field{display:flex; flex-direction:column; gap:6px;}
+.field label{font-size:11.5px; color:var(--muted);}
+.field input{
+  width:64px; background:var(--panel2); border:1px solid var(--line); color:var(--ink);
+  font-family:inherit; font-size:15px; padding:7px 8px; border-radius:6px;
+}
+.field input:focus{outline:2px solid var(--amber); outline-offset:1px;}
+.mult-sign{font-size:20px; color:var(--muted); padding-bottom:8px;}
+.dims{font-size:13px; color:var(--teal); padding-bottom:8px;}
+button{
+  font-family:inherit; font-size:13.5px; border-radius:6px; border:1px solid var(--line);
+  background:var(--panel2); color:var(--ink); padding:9px 16px; cursor:pointer;
+}
+button:hover{border-color:var(--amber);}
+button:focus-visible{outline:2px solid var(--amber); outline-offset:1px;}
+button.primary{background:var(--amber); color:#1a1508; border-color:var(--amber); font-weight:600;}
+button.primary:hover{filter:brightness(1.08);}
+button:disabled{opacity:.4; cursor:not-allowed;}
+.err{color:var(--danger); font-size:12.5px; margin-top:8px; min-height:1em;}
+
+.stage{display:none;}
+.stage.active{display:block;}
+
+.controls{display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-bottom:20px;}
+.controls .spacer{flex:1;}
+.speed{display:flex; align-items:center; gap:8px; font-size:12px; color:var(--muted);}
+.speed input{accent-color:var(--amber);}
+
+.board{
+  display:flex; flex-wrap:wrap; gap:26px; align-items:center; justify-content:center;
+  background:var(--panel); border:1px solid var(--line); border-radius:10px;
+  padding:28px 20px; overflow-x:auto;
+}
+.matrix-block{display:flex; flex-direction:column; align-items:center; gap:8px;}
+.matrix-name{font-family:'Fraunces',serif; font-size:15px; color:var(--muted);}
+.matrix{
+  display:grid; gap:4px; padding:10px; position:relative;
+  border-left:2px solid var(--line); border-right:2px solid var(--line);
+}
+.cell{
+  width:40px; height:40px; display:flex; align-items:center; justify-content:center;
+  font-size:14px; border-radius:4px; background:var(--panel2); transition:background .25s, color .25s, transform .2s;
+}
+.cell.hi-row{background:#3a3320;}
+.cell.hi-col{background:#22383a;}
+.cell.hi-both{background:var(--amber); color:#1a1508; font-weight:600;}
+.result .cell.filled{background:var(--teal); color:#0e211f; font-weight:600;}
+.result .cell.active{transform:scale(1.12); box-shadow:0 0 0 2px var(--amber);}
+.op{font-size:22px; color:var(--muted); align-self:center;}
+
+.work{
+  margin-top:22px; background:var(--panel2); border:1px solid var(--line); border-radius:8px;
+  padding:16px 18px; min-height:64px; font-size:14px; line-height:1.7;
+}
+.work .label{color:var(--muted); font-size:11.5px; margin-bottom:6px;}
+.work .expr{color:var(--ink); word-break:break-word;}
+.work .expr .term{color:var(--amber);}
+.work .expr .eq{color:var(--teal); font-weight:600;}
+
+.status{font-size:12.5px; color:var(--muted); margin-top:14px; text-align:center;}
+
+@media (prefers-color-scheme: light){
+  :root:not([data-theme="dark"]){
+    --bg:#f5f2ea; --panel:#ffffff; --panel2:#f0ede4; --ink:#242019;
+    --muted:#7a7266; --line:#ddd6c6; --amber:#b8792e; --teal:#2f7d75; --danger:#b04b3a;
+  }
+  :root:not([data-theme="dark"]) .cell{background:#eae5d8;}
+  :root:not([data-theme="dark"]) .cell.hi-both{color:#fff8ec;}
+  :root:not([data-theme="dark"]) .result .cell.filled{color:#f2fbfa;}
+}
+:root[data-theme="dark"]{}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Matritsalarni ko'paytirish</h1>
+  <p class="sub">Matritsalar o'lchamini kiriting, qiymatlarni to'ldiring va ko'paytirish jarayonini qadam-baqadam animatsiyada kuzating.</p>
+
+  <div class="setup" id="setup">
+    <div class="setup-row">
+      <div class="field">
+        <label>A qatorlar</label>
+        <input type="number" id="aRows" min="2" max="5" value="3">
+      </div>
+      <div class="mult-sign">×</div>
+      <div class="field">
+        <label>A ustunlar = B qatorlar</label>
+        <input type="number" id="shared" min="2" max="5" value="3">
+      </div>
+      <div class="mult-sign">→</div>
+      <div class="field">
+        <label>B ustunlar</label>
+        <input type="number" id="bCols" min="2" max="5" value="3">
+      </div>
+      <div class="dims" id="dimsPreview">A(3×3) · B(3×3) → C(3×3)</div>
+      <button class="primary" id="genBtn">Matritsalarni yaratish</button>
+    </div>
+    <div class="err" id="setupErr"></div>
+  </div>
+
+  <div class="stage" id="stage">
+    <div class="controls">
+      <button id="playBtn" class="primary">▶ Boshlash</button>
+      <button id="stepBtn">Bitta qadam</button>
+      <button id="resetBtn">Qayta tuzish</button>
+      <div class="spacer"></div>
+      <div class="speed">
+        <span>Tezlik</span>
+        <input type="range" id="speedRange" min="300" max="1800" value="900" step="100">
+      </div>
+    </div>
+
+    <div class="board">
+      <div class="matrix-block">
+        <div class="matrix-name">A</div>
+        <div class="matrix" id="matA"></div>
+      </div>
+      <div class="op">×</div>
+      <div class="matrix-block">
+        <div class="matrix-name">B</div>
+        <div class="matrix" id="matB"></div>
+      </div>
+      <div class="op">=</div>
+      <div class="matrix-block">
+        <div class="matrix-name">C</div>
+        <div class="matrix result" id="matC"></div>
+      </div>
+    </div>
+
+    <div class="work">
+      <div class="label">Hisoblash</div>
+      <div class="expr" id="workExpr">Boshlash tugmasini bosing.</div>
+    </div>
+
+    <div class="status" id="status"></div>
+  </div>
+</div>
+
+<script>
+(function(){
+  const aRowsEl=document.getElementById('aRows'), sharedEl=document.getElementById('shared'), bColsEl=document.getElementById('bCols');
+  const dimsPreview=document.getElementById('dimsPreview');
+  const setupErr=document.getElementById('setupErr');
+  const genBtn=document.getElementById('genBtn');
+  const stage=document.getElementById('stage');
+  const matA=document.getElementById('matA'), matB=document.getElementById('matB'), matC=document.getElementById('matC');
+  const workExpr=document.getElementById('workExpr');
+  const statusEl=document.getElementById('status');
+  const playBtn=document.getElementById('playBtn'), stepBtn=document.getElementById('stepBtn'), resetBtn=document.getElementById('resetBtn');
+  const speedRange=document.getElementById('speedRange');
+
+  let m,n,p; // A: m x n, B: n x p, C: m x p
+  let A=[],B=[],C=[];
+  let steps=[]; // {i,j,k, partial, done}
+  let stepIdx=0;
+  let playing=false;
+  let timer=null;
+
+  function clampInputs(){
+    [aRowsEl,sharedEl,bColsEl].forEach(el=>{
+      let v=parseInt(el.value||'0',10);
+      if(isNaN(v)) v=2;
+      v=Math.max(2,Math.min(5,v));
+      el.value=v;
+    });
+  }
+  function updatePreview(){
+    clampInputs();
+    const a=aRowsEl.value, s=sharedEl.value, b=bColsEl.value;
+    dimsPreview.textContent = `A(${a}×${s}) · B(${s}×${b}) → C(${a}×${b})`;
+  }
+  [aRowsEl,sharedEl,bColsEl].forEach(el=>el.addEventListener('input',updatePreview));
+  updatePreview();
+
+  function randVal(){ return Math.floor(Math.random()*9)-4; } // -4..4
+
+  function buildMatrix(container, rows, cols, editable, values){
+    container.style.gridTemplateColumns = `repeat(${cols}, 40px)`;
+    container.innerHTML='';
+    const cells=[];
+    for(let i=0;i<rows;i++){
+      const row=[];
+      for(let j=0;j<cols;j++){
+        const cell=document.createElement('div');
+        cell.className='cell';
+        if(editable){
+          const inp=document.createElement('input');
+          inp.type='number';
+          inp.value=values[i][j];
+          inp.style.cssText='width:100%;height:100%;background:transparent;border:none;color:inherit;font-family:inherit;font-size:13px;text-align:center;';
+          inp.addEventListener('change',()=>{ values[i][j]=parseFloat(inp.value)||0; });
+          cell.appendChild(inp);
+        } else {
+          cell.textContent='';
+        }
+        cell.dataset.row=i; cell.dataset.col=j;
+        container.appendChild(cell);
+        row.push(cell);
+      }
+      cells.push(row);
+    }
+    return cells;
+  }
+
+  let cellsA=[], cellsB=[], cellsC=[];
+
+  function generate(){
+    clampInputs();
+    m=parseInt(aRowsEl.value,10); n=parseInt(sharedEl.value,10); p=parseInt(bColsEl.value,10);
+    setupErr.textContent='';
+    A=Array.from({length:m},()=>Array.from({length:n},randVal));
+    B=Array.from({length:n},()=>Array.from({length:p},randVal));
+    C=Array.from({length:m},()=>Array.from({length:p},()=>0));
+
+    cellsA=buildMatrix(matA,m,n,true,A);
+    cellsB=buildMatrix(matB,n,p,true,B);
+    cellsC=buildMatrix(matC,m,p,false,C);
+
+    buildSteps();
+    stepIdx=0;
+    playing=false;
+    clearTimeout(timer);
+    playBtn.textContent='▶ Boshlash';
+    workExpr.textContent='Boshlash tugmasini bosing.';
+    statusEl.textContent=`Jami qadamlar: ${steps.length}`;
+    stage.classList.add('active');
+    clearHighlights();
+  }
+
+  function buildSteps(){
+    steps=[];
+    for(let i=0;i<m;i++){
+      for(let j=0;j<p;j++){
+        for(let k=0;k<n;k++){
+          steps.push({i,j,k, isLast:k===n-1});
+        }
+      }
+    }
+  }
+
+  function clearHighlights(){
+    [cellsA,cellsB].forEach(mat=>mat.forEach(row=>row.forEach(c=>c.classList.remove('hi-row','hi-col','hi-both'))));
+    cellsC.forEach(row=>row.forEach(c=>c.classList.remove('active')));
+  }
+
+  function doStep(){
+    if(stepIdx>=steps.length){ playing=false; playBtn.textContent='▶ Boshlash'; clearTimeout(timer); statusEl.textContent='Tugallandi ✓'; return; }
+    const {i,j,k,isLast} = steps[stepIdx];
+    clearHighlights();
+    // highlight row i of A up to k, col j of B up to k
+    for(let kk=0; kk<=k; kk++){
+      cellsA[i][kk].classList.add(kk===k?'hi-both':'hi-row');
+      cellsB[kk][j].classList.add(kk===k?'hi-both':'hi-col');
+    }
+    cellsC[i][j].classList.add('active');
+
+    // accumulate partial sum
+    let partial=0;
+    let terms=[];
+    for(let kk=0; kk<=k; kk++){
+      partial += A[i][kk]*B[kk][j];
+      terms.push(`<span class="term">${A[i][kk]}×${B[kk][j]}</span>`);
+    }
+    workExpr.innerHTML = `C[${i+1}][${j+1}] = ${terms.join(' + ')} <span class="eq">= ${partial}</span>`;
+
+    if(isLast){
+      C[i][j]=partial;
+      cellsC[i][j].textContent=partial;
+      cellsC[i][j].classList.add('filled');
+    }
+
+    statusEl.textContent = `Qadam ${stepIdx+1} / ${steps.length} — C[${i+1}][${j+1}] hisoblanmoqda`;
+    stepIdx++;
+  }
+
+  function play(){
+    if(stepIdx>=steps.length){ return; }
+    playing=true;
+    playBtn.textContent='⏸ To\'xtatish';
+    const loop=()=>{
+      if(!playing) return;
+      doStep();
+      if(stepIdx>=steps.length){ playing=false; playBtn.textContent='▶ Boshlash'; return; }
+      timer=setTimeout(loop, parseInt(speedRange.value,10));
+    };
+    loop();
+  }
+  function pause(){
+    playing=false;
+    playBtn.textContent='▶ Boshlash';
+    clearTimeout(timer);
+  }
+
+  genBtn.addEventListener('click', generate);
+  playBtn.addEventListener('click', ()=>{
+    if(stepIdx>=steps.length){ // restart
+      C=Array.from({length:m},()=>Array.from({length:p},()=>0));
+      cellsC=buildMatrix(matC,m,p,false,C);
+      stepIdx=0;
+    }
+    if(playing) pause(); else play();
+  });
+  stepBtn.addEventListener('click', ()=>{ pause(); doStep(); });
+  resetBtn.addEventListener('click', ()=>{
+    pause();
+    stepIdx=0;
+    C=Array.from({length:m},()=>Array.from({length:p},()=>0));
+    cellsC=buildMatrix(matC,m,p,false,C);
+    clearHighlights();
+    workExpr.textContent='Boshlash tugmasini bosing.';
+    statusEl.textContent=`Jami qadamlar: ${steps.length}`;
+  });
+
+  generate();
+})();
+</script>
+</body>
+</html>
