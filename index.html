@@ -3,134 +3,126 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Matritsalarni ko'paytirish</title>
+<title>Matritsalar bilan amallar</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 :root{
   --bg:#12151c; --panel:#1a1e28; --panel2:#20242f; --ink:#eae6da;
-  --muted:#8b93a3; --line:#2c3140; --amber:#d7a24a; --teal:#4fa8a0;
-  --danger:#c96a5a;
+  --muted:#8b93a3; --line:#2c3140; --amber:#d7a24a; --teal:#4fa8a0; --danger:#c96a5a;
   padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
   box-sizing:border-box;
 }
 *{box-sizing:border-box;}
 html{scroll-padding-top:env(safe-area-inset-top,0px);}
-body{
-  margin:0; background:var(--bg); color:var(--ink);
-  font-family:'IBM Plex Mono',monospace;
-  min-height:100%;
-  padding:28px 18px 40px;
-}
-h1{
-  font-family:'Fraunces',serif; font-weight:600; font-size:clamp(22px,4vw,32px);
-  margin:0 0 4px; letter-spacing:-0.01em;
-}
-.sub{color:var(--muted); font-size:13.5px; margin:0 0 26px; max-width:60ch; line-height:1.5;}
-.wrap{max-width:920px; margin:0 auto;}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:'IBM Plex Mono',monospace;min-height:100%;padding:28px 18px 44px;}
+h1{font-family:'Fraunces',serif;font-weight:600;font-size:clamp(22px,4vw,32px);margin:0 0 4px;letter-spacing:-.01em;}
+.sub{color:var(--muted);font-size:13.5px;margin:0 0 22px;max-width:64ch;line-height:1.5;}
+.wrap{max-width:980px;margin:0 auto;}
 
-.setup{
-  background:var(--panel); border:1px solid var(--line); border-radius:10px;
-  padding:18px 20px; margin-bottom:22px;
-}
-.setup-row{display:flex; flex-wrap:wrap; gap:22px; align-items:flex-end;}
-.field{display:flex; flex-direction:column; gap:6px;}
-.field label{font-size:11.5px; color:var(--muted);}
-.field input{
-  width:64px; background:var(--panel2); border:1px solid var(--line); color:var(--ink);
-  font-family:inherit; font-size:15px; padding:7px 8px; border-radius:6px;
-}
-.field input:focus{outline:2px solid var(--amber); outline-offset:1px;}
-.mult-sign{font-size:20px; color:var(--muted); padding-bottom:8px;}
-.dims{font-size:13px; color:var(--teal); padding-bottom:8px;}
-button{
-  font-family:inherit; font-size:13.5px; border-radius:6px; border:1px solid var(--line);
-  background:var(--panel2); color:var(--ink); padding:9px 16px; cursor:pointer;
-}
+.mode-tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;}
+.mode-btn{font-family:inherit;font-size:13px;border-radius:7px;border:1px solid var(--line);background:var(--panel2);color:var(--muted);padding:8px 14px;cursor:pointer;}
+.mode-btn:hover{color:var(--ink);border-color:var(--amber);}
+.mode-btn.active{background:var(--amber);color:#1a1508;border-color:var(--amber);font-weight:600;}
+
+.setup{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:18px 20px;margin-bottom:22px;}
+.setup-fields{display:none;gap:22px;flex-wrap:wrap;align-items:flex-end;}
+.setup-fields.active{display:flex;}
+.field{display:flex;flex-direction:column;gap:6px;}
+.field label{font-size:11.5px;color:var(--muted);}
+.field input{width:64px;background:var(--panel2);border:1px solid var(--line);color:var(--ink);font-family:inherit;font-size:15px;padding:7px 8px;border-radius:6px;}
+.field input:focus{outline:2px solid var(--amber);outline-offset:1px;}
+.mult-sign{font-size:20px;color:var(--muted);padding-bottom:8px;}
+.dims{font-size:13px;color:var(--teal);padding-bottom:8px;}
+button{font-family:inherit;font-size:13.5px;border-radius:6px;border:1px solid var(--line);background:var(--panel2);color:var(--ink);padding:9px 16px;cursor:pointer;}
 button:hover{border-color:var(--amber);}
-button:focus-visible{outline:2px solid var(--amber); outline-offset:1px;}
-button.primary{background:var(--amber); color:#1a1508; border-color:var(--amber); font-weight:600;}
+button:focus-visible{outline:2px solid var(--amber);outline-offset:1px;}
+button.primary{background:var(--amber);color:#1a1508;border-color:var(--amber);font-weight:600;}
 button.primary:hover{filter:brightness(1.08);}
-button:disabled{opacity:.4; cursor:not-allowed;}
-.err{color:var(--danger); font-size:12.5px; margin-top:8px; min-height:1em;}
+.err{color:var(--danger);font-size:12.5px;margin-top:10px;min-height:1em;}
 
 .stage{display:none;}
 .stage.active{display:block;}
-
-.controls{display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-bottom:20px;}
+.controls{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:20px;}
 .controls .spacer{flex:1;}
-.speed{display:flex; align-items:center; gap:8px; font-size:12px; color:var(--muted);}
+.speed{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted);}
 .speed input{accent-color:var(--amber);}
 
-.board{
-  display:flex; flex-wrap:wrap; gap:26px; align-items:center; justify-content:center;
-  background:var(--panel); border:1px solid var(--line); border-radius:10px;
-  padding:28px 20px; overflow-x:auto;
-}
-.matrix-block{display:flex; flex-direction:column; align-items:center; gap:8px;}
-.matrix-name{font-family:'Fraunces',serif; font-size:15px; color:var(--muted);}
-.matrix{
-  display:grid; gap:4px; padding:10px; position:relative;
-  border-left:2px solid var(--line); border-right:2px solid var(--line);
-}
-.cell{
-  width:40px; height:40px; display:flex; align-items:center; justify-content:center;
-  font-size:14px; border-radius:4px; background:var(--panel2); transition:background .25s, color .25s, transform .2s;
-}
+.board{display:flex;flex-wrap:wrap;gap:24px;align-items:center;justify-content:center;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:26px 18px;overflow-x:auto;}
+.matrix-block{display:flex;flex-direction:column;align-items:center;gap:8px;}
+.matrix-name{font-family:'Fraunces',serif;font-size:15px;color:var(--muted);}
+.matrix{display:grid;gap:4px;padding:10px;border-left:2px solid var(--line);border-right:2px solid var(--line);}
+.cell{width:40px;height:40px;display:flex;align-items:center;justify-content:center;font-size:13.5px;border-radius:4px;background:var(--panel2);transition:background .25s,color .25s,transform .2s;}
 .cell.hi-row{background:#3a3320;}
 .cell.hi-col{background:#22383a;}
-.cell.hi-both{background:var(--amber); color:#1a1508; font-weight:600;}
-.result .cell.filled{background:var(--teal); color:#0e211f; font-weight:600;}
-.result .cell.active{transform:scale(1.12); box-shadow:0 0 0 2px var(--amber);}
-.op{font-size:22px; color:var(--muted); align-self:center;}
+.cell.hi-both{background:var(--amber);color:#1a1508;font-weight:600;}
+.cell.dim{opacity:.35;}
+.result .cell.filled{background:var(--teal);color:#0e211f;font-weight:600;}
+.result .cell.active{transform:scale(1.12);box-shadow:0 0 0 2px var(--amber);}
+.op{font-size:22px;color:var(--muted);align-self:center;}
 
-.work{
-  margin-top:22px; background:var(--panel2); border:1px solid var(--line); border-radius:8px;
-  padding:16px 18px; min-height:64px; font-size:14px; line-height:1.7;
-}
-.work .label{color:var(--muted); font-size:11.5px; margin-bottom:6px;}
-.work .expr{color:var(--ink); word-break:break-word;}
+.work{margin-top:22px;background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:16px 18px;min-height:64px;font-size:13.5px;line-height:1.7;}
+.work .label{color:var(--muted);font-size:11.5px;margin-bottom:6px;}
+.work .expr{color:var(--ink);word-break:break-word;}
 .work .expr .term{color:var(--amber);}
-.work .expr .eq{color:var(--teal); font-weight:600;}
+.work .expr .eq{color:var(--teal);font-weight:600;}
+.mini{display:inline-block;vertical-align:middle;border-left:1px solid var(--line);border-right:1px solid var(--line);padding:2px 6px;margin:0 4px;}
+.mini .r{display:block;}
 
-.status{font-size:12.5px; color:var(--muted); margin-top:14px; text-align:center;}
+.status{font-size:12.5px;color:var(--muted);margin-top:14px;text-align:center;}
 
 @media (prefers-color-scheme: light){
   :root:not([data-theme="dark"]){
-    --bg:#f5f2ea; --panel:#ffffff; --panel2:#f0ede4; --ink:#242019;
-    --muted:#7a7266; --line:#ddd6c6; --amber:#b8792e; --teal:#2f7d75; --danger:#b04b3a;
+    --bg:#f5f2ea;--panel:#ffffff;--panel2:#f0ede4;--ink:#242019;
+    --muted:#7a7266;--line:#ddd6c6;--amber:#b8792e;--teal:#2f7d75;--danger:#b04b3a;
   }
   :root:not([data-theme="dark"]) .cell{background:#eae5d8;}
   :root:not([data-theme="dark"]) .cell.hi-both{color:#fff8ec;}
   :root:not([data-theme="dark"]) .result .cell.filled{color:#f2fbfa;}
 }
-:root[data-theme="dark"]{}
 </style>
 </head>
 <body>
 <div class="wrap">
-  <h1>Matritsalarni ko'paytirish</h1>
-  <p class="sub">Matritsalar o'lchamini kiriting, qiymatlarni to'ldiring va ko'paytirish jarayonini qadam-baqadam animatsiyada kuzating.</p>
+  <h1>Matritsalar bilan amallar</h1>
+  <p class="sub">Amalni tanlang, o'lchamlarni kiriting, qiymatlarni to'ldiring va jarayonni qadam-baqadam animatsiyada kuzating.</p>
+
+  <div class="mode-tabs" id="modeTabs">
+    <button class="mode-btn active" data-mode="add">Qo'shish</button>
+    <button class="mode-btn" data-mode="sub">Ayirish</button>
+    <button class="mode-btn" data-mode="mul">Ko'paytirish</button>
+    <button class="mode-btn" data-mode="transpose">Transponirlash</button>
+    <button class="mode-btn" data-mode="det">Determinant</button>
+    <button class="mode-btn" data-mode="inv">Teskari matritsa</button>
+  </div>
 
   <div class="setup" id="setup">
-    <div class="setup-row">
-      <div class="field">
-        <label>A qatorlar</label>
-        <input type="number" id="aRows" min="2" max="5" value="3">
-      </div>
+    <div class="setup-fields active" data-for="add,sub">
+      <div class="field"><label>Qatorlar</label><input type="number" id="asRows" min="2" max="5" value="3"></div>
+      <div class="field"><label>Ustunlar</label><input type="number" id="asCols" min="2" max="5" value="3"></div>
+      <div class="dims" id="dimsAS">A(3×3), B(3×3) → C(3×3)</div>
+      <button class="primary genBtn">Matritsalarni yaratish</button>
+    </div>
+    <div class="setup-fields" data-for="mul">
+      <div class="field"><label>A qatorlar</label><input type="number" id="mRows" min="2" max="5" value="3"></div>
       <div class="mult-sign">×</div>
-      <div class="field">
-        <label>A ustunlar = B qatorlar</label>
-        <input type="number" id="shared" min="2" max="5" value="3">
-      </div>
+      <div class="field"><label>A ustunlar = B qatorlar</label><input type="number" id="mShared" min="2" max="5" value="3"></div>
       <div class="mult-sign">→</div>
-      <div class="field">
-        <label>B ustunlar</label>
-        <input type="number" id="bCols" min="2" max="5" value="3">
-      </div>
-      <div class="dims" id="dimsPreview">A(3×3) · B(3×3) → C(3×3)</div>
-      <button class="primary" id="genBtn">Matritsalarni yaratish</button>
+      <div class="field"><label>B ustunlar</label><input type="number" id="mCols" min="2" max="5" value="3"></div>
+      <div class="dims" id="dimsMul">A(3×3) · B(3×3) → C(3×3)</div>
+      <button class="primary genBtn">Matritsalarni yaratish</button>
+    </div>
+    <div class="setup-fields" data-for="transpose">
+      <div class="field"><label>Qatorlar</label><input type="number" id="tRows" min="2" max="5" value="3"></div>
+      <div class="field"><label>Ustunlar</label><input type="number" id="tCols" min="2" max="5" value="4"></div>
+      <div class="dims" id="dimsT">A(3×4) → Aᵀ(4×3)</div>
+      <button class="primary genBtn">Matritsa yaratish</button>
+    </div>
+    <div class="setup-fields" data-for="det,inv">
+      <div class="field"><label>O'lcham (n×n)</label><input type="number" id="sqN" min="2" max="4" value="3"></div>
+      <div class="dims" id="dimsSq">A(3×3)</div>
+      <button class="primary genBtn">Matritsa yaratish</button>
     </div>
     <div class="err" id="setupErr"></div>
   </div>
@@ -141,212 +133,278 @@ button:disabled{opacity:.4; cursor:not-allowed;}
       <button id="stepBtn">Bitta qadam</button>
       <button id="resetBtn">Qayta tuzish</button>
       <div class="spacer"></div>
-      <div class="speed">
-        <span>Tezlik</span>
-        <input type="range" id="speedRange" min="300" max="1800" value="900" step="100">
-      </div>
+      <div class="speed"><span>Tezlik</span><input type="range" id="speedRange" min="300" max="1800" value="900" step="100"></div>
     </div>
-
-    <div class="board">
-      <div class="matrix-block">
-        <div class="matrix-name">A</div>
-        <div class="matrix" id="matA"></div>
-      </div>
-      <div class="op">×</div>
-      <div class="matrix-block">
-        <div class="matrix-name">B</div>
-        <div class="matrix" id="matB"></div>
-      </div>
-      <div class="op">=</div>
-      <div class="matrix-block">
-        <div class="matrix-name">C</div>
-        <div class="matrix result" id="matC"></div>
-      </div>
-    </div>
-
-    <div class="work">
-      <div class="label">Hisoblash</div>
-      <div class="expr" id="workExpr">Boshlash tugmasini bosing.</div>
-    </div>
-
+    <div class="board" id="board"></div>
+    <div class="work"><div class="label">Hisoblash</div><div class="expr" id="workExpr">Boshlash tugmasini bosing.</div></div>
     <div class="status" id="status"></div>
   </div>
 </div>
 
 <script>
 (function(){
-  const aRowsEl=document.getElementById('aRows'), sharedEl=document.getElementById('shared'), bColsEl=document.getElementById('bCols');
-  const dimsPreview=document.getElementById('dimsPreview');
+  const modeTabs=document.getElementById('modeTabs');
+  const setup=document.getElementById('setup');
   const setupErr=document.getElementById('setupErr');
-  const genBtn=document.getElementById('genBtn');
   const stage=document.getElementById('stage');
-  const matA=document.getElementById('matA'), matB=document.getElementById('matB'), matC=document.getElementById('matC');
+  const board=document.getElementById('board');
   const workExpr=document.getElementById('workExpr');
   const statusEl=document.getElementById('status');
   const playBtn=document.getElementById('playBtn'), stepBtn=document.getElementById('stepBtn'), resetBtn=document.getElementById('resetBtn');
   const speedRange=document.getElementById('speedRange');
 
-  let m,n,p; // A: m x n, B: n x p, C: m x p
-  let A=[],B=[],C=[];
-  let steps=[]; // {i,j,k, partial, done}
-  let stepIdx=0;
-  let playing=false;
-  let timer=null;
+  let mode='add';
+  let A=[],B=[],cof=[],adj=[],result=[];
+  let cellsA=[],cellsB=[],cellsCof=[],cellsAdj=[],cellsResult=[];
+  let steps=[], stepIdx=0, playing=false, timer=null, detValue=0;
 
-  function clampInputs(){
-    [aRowsEl,sharedEl,bColsEl].forEach(el=>{
-      let v=parseInt(el.value||'0',10);
-      if(isNaN(v)) v=2;
-      v=Math.max(2,Math.min(5,v));
-      el.value=v;
-    });
-  }
+  // ---- mode switching ----
+  modeTabs.addEventListener('click',e=>{
+    const btn=e.target.closest('.mode-btn'); if(!btn) return;
+    mode=btn.dataset.mode;
+    [...modeTabs.children].forEach(b=>b.classList.toggle('active',b===btn));
+    [...setup.querySelectorAll('.setup-fields')].forEach(f=>f.classList.toggle('active', f.dataset.for.split(',').includes(mode)));
+    stage.classList.remove('active');
+    updatePreview();
+  });
+  setup.addEventListener('click',e=>{ if(e.target.classList.contains('genBtn')) generate(); });
+  setup.addEventListener('input',updatePreview);
+
+  function clampEl(el,lo,hi){ let v=parseInt(el.value||'0',10); if(isNaN(v))v=lo; v=Math.max(lo,Math.min(hi,v)); el.value=v; return v; }
+
   function updatePreview(){
-    clampInputs();
-    const a=aRowsEl.value, s=sharedEl.value, b=bColsEl.value;
-    dimsPreview.textContent = `A(${a}×${s}) · B(${s}×${b}) → C(${a}×${b})`;
+    if(mode==='add'||mode==='sub'){
+      const r=clampEl(document.getElementById('asRows'),2,5), c=clampEl(document.getElementById('asCols'),2,5);
+      document.getElementById('dimsAS').textContent=`A(${r}×${c}), B(${r}×${c}) → C(${r}×${c})`;
+    } else if(mode==='mul'){
+      const a=clampEl(document.getElementById('mRows'),2,5), s=clampEl(document.getElementById('mShared'),2,5), b=clampEl(document.getElementById('mCols'),2,5);
+      document.getElementById('dimsMul').textContent=`A(${a}×${s}) · B(${s}×${b}) → C(${a}×${b})`;
+    } else if(mode==='transpose'){
+      const r=clampEl(document.getElementById('tRows'),2,5), c=clampEl(document.getElementById('tCols'),2,5);
+      document.getElementById('dimsT').textContent=`A(${r}×${c}) → Aᵀ(${c}×${r})`;
+    } else {
+      const n=clampEl(document.getElementById('sqN'),2,4);
+      document.getElementById('dimsSq').textContent=`A(${n}×${n})`;
+    }
   }
-  [aRowsEl,sharedEl,bColsEl].forEach(el=>el.addEventListener('input',updatePreview));
   updatePreview();
 
-  function randVal(){ return Math.floor(Math.random()*9)-4; } // -4..4
+  function randVal(){ return Math.floor(Math.random()*9)-4; }
+  function zeros(r,c){ return Array.from({length:r},()=>Array.from({length:c},()=>0)); }
+  function randMat(r,c){ return Array.from({length:r},()=>Array.from({length:c},randVal)); }
 
-  function buildMatrix(container, rows, cols, editable, values){
-    container.style.gridTemplateColumns = `repeat(${cols}, 40px)`;
+  function buildMatrix(container,rows,cols,editable,values){
+    container.style.gridTemplateColumns=`repeat(${cols}, 40px)`;
     container.innerHTML='';
     const cells=[];
     for(let i=0;i<rows;i++){
       const row=[];
       for(let j=0;j<cols;j++){
-        const cell=document.createElement('div');
-        cell.className='cell';
+        const cell=document.createElement('div'); cell.className='cell';
         if(editable){
-          const inp=document.createElement('input');
-          inp.type='number';
-          inp.value=values[i][j];
+          const inp=document.createElement('input'); inp.type='number'; inp.value=values[i][j];
           inp.style.cssText='width:100%;height:100%;background:transparent;border:none;color:inherit;font-family:inherit;font-size:13px;text-align:center;';
           inp.addEventListener('change',()=>{ values[i][j]=parseFloat(inp.value)||0; });
           cell.appendChild(inp);
-        } else {
-          cell.textContent='';
         }
         cell.dataset.row=i; cell.dataset.col=j;
-        container.appendChild(cell);
-        row.push(cell);
+        container.appendChild(cell); row.push(cell);
       }
       cells.push(row);
     }
     return cells;
   }
 
-  let cellsA=[], cellsB=[], cellsC=[];
+  function addBlock(key,label,cls){
+    const wrap=document.createElement('div'); wrap.className='matrix-block';
+    const nm=document.createElement('div'); nm.className='matrix-name'; nm.textContent=label;
+    const grid=document.createElement('div'); grid.className='matrix'+(cls?' '+cls:'');
+    wrap.appendChild(nm); wrap.appendChild(grid); board.appendChild(wrap);
+    return grid;
+  }
+  function addOp(sym){ const op=document.createElement('div'); op.className='op'; op.textContent=sym; board.appendChild(op); }
+
+  function minor(mat,row,col){ return mat.filter((_,i)=>i!==row).map(r=>r.filter((_,j)=>j!==col)); }
+  function determinant(mat){
+    const n=mat.length;
+    if(n===1) return mat[0][0];
+    if(n===2) return mat[0][0]*mat[1][1]-mat[0][1]*mat[1][0];
+    let d=0;
+    for(let j=0;j<n;j++) d += ((j%2===0)?1:-1)*mat[0][j]*determinant(minor(mat,0,j));
+    return d;
+  }
+  function miniMat(mat){
+    return '<span class="mini">'+mat.map(r=>'<span class="r">'+r.join('&nbsp;&nbsp;')+'</span>').join('')+'</span>';
+  }
+  function clearHi(){
+    [cellsA,cellsB,cellsCof,cellsAdj].forEach(m=>m.forEach(row=>row&&row.forEach(c=>c.classList.remove('hi-row','hi-col','hi-both','dim'))));
+    cellsResult.forEach(row=>row.forEach(c=>c.classList.remove('active')));
+  }
 
   function generate(){
-    clampInputs();
-    m=parseInt(aRowsEl.value,10); n=parseInt(sharedEl.value,10); p=parseInt(bColsEl.value,10);
     setupErr.textContent='';
-    A=Array.from({length:m},()=>Array.from({length:n},randVal));
-    B=Array.from({length:n},()=>Array.from({length:p},randVal));
-    C=Array.from({length:m},()=>Array.from({length:p},()=>0));
+    board.innerHTML='';
+    cellsA=[];cellsB=[];cellsCof=[];cellsAdj=[];cellsResult=[];
+    stepIdx=0; playing=false; clearTimeout(timer); playBtn.textContent='▶ Boshlash';
 
-    cellsA=buildMatrix(matA,m,n,true,A);
-    cellsB=buildMatrix(matB,n,p,true,B);
-    cellsC=buildMatrix(matC,m,p,false,C);
+    if(mode==='add'||mode==='sub'){
+      const r=clampEl(document.getElementById('asRows'),2,5), c=clampEl(document.getElementById('asCols'),2,5);
+      A=randMat(r,c); B=randMat(r,c); result=zeros(r,c);
+      cellsA=buildMatrix(addBlock('A','A'),r,c,true,A);
+      addOp(mode==='add'?'+':'−');
+      cellsB=buildMatrix(addBlock('B','B'),r,c,true,B);
+      addOp('=');
+      cellsResult=buildMatrix(addBlock('R','C','result'),r,c,false,result);
+      steps=[]; for(let i=0;i<r;i++) for(let j=0;j<c;j++) steps.push({type:'as',i,j});
+    } else if(mode==='mul'){
+      const m=clampEl(document.getElementById('mRows'),2,5), n=clampEl(document.getElementById('mShared'),2,5), p=clampEl(document.getElementById('mCols'),2,5);
+      A=randMat(m,n); B=randMat(n,p); result=zeros(m,p);
+      cellsA=buildMatrix(addBlock('A','A'),m,n,true,A);
+      addOp('×');
+      cellsB=buildMatrix(addBlock('B','B'),n,p,true,B);
+      addOp('=');
+      cellsResult=buildMatrix(addBlock('R','C','result'),m,p,false,result);
+      steps=[]; for(let i=0;i<m;i++) for(let j=0;j<p;j++) for(let k=0;k<n;k++) steps.push({type:'mul',i,j,k,isLast:k===n-1});
+    } else if(mode==='transpose'){
+      const r=clampEl(document.getElementById('tRows'),2,5), c=clampEl(document.getElementById('tCols'),2,5);
+      A=randMat(r,c); result=zeros(c,r);
+      cellsA=buildMatrix(addBlock('A','A'),r,c,true,A);
+      addOp('→');
+      cellsResult=buildMatrix(addBlock('R','Aᵀ','result'),c,r,false,result);
+      steps=[]; for(let i=0;i<r;i++) for(let j=0;j<c;j++) steps.push({type:'t',i,j});
+    } else if(mode==='det'){
+      const n=clampEl(document.getElementById('sqN'),2,4);
+      A=randMat(n,n); result=[[0]];
+      cellsA=buildMatrix(addBlock('A','A'),n,n,true,A);
+      addOp('→');
+      cellsResult=buildMatrix(addBlock('R','det(A)','result'),1,1,false,result);
+      steps=[]; for(let j=0;j<n;j++) steps.push({type:'det',j,n});
+    } else if(mode==='inv'){
+      const n=clampEl(document.getElementById('sqN'),2,4);
+      A=randMat(n,n); cof=zeros(n,n); adj=zeros(n,n); result=zeros(n,n);
+      cellsA=buildMatrix(addBlock('A','A'),n,n,true,A);
+      addOp('→');
+      cellsCof=buildMatrix(addBlock('CO','Kofaktorlar'),n,n,false,cof);
+      addOp('→');
+      cellsAdj=buildMatrix(addBlock('AD','Adjugat'),n,n,false,adj);
+      addOp('→');
+      cellsResult=buildMatrix(addBlock('R','A⁻¹','result'),n,n,false,result);
+      steps=[];
+      for(let i=0;i<n;i++) for(let j=0;j<n;j++) steps.push({type:'cof',i,j,n});
+      for(let i=0;i<n;i++) for(let j=0;j<n;j++) steps.push({type:'adjt',i,j});
+      steps.push({type:'detinfo',n});
+      for(let i=0;i<n;i++) for(let j=0;j<n;j++) steps.push({type:'div',i,j});
+    }
 
-    buildSteps();
-    stepIdx=0;
-    playing=false;
-    clearTimeout(timer);
-    playBtn.textContent='▶ Boshlash';
+    clearHi();
     workExpr.textContent='Boshlash tugmasini bosing.';
     statusEl.textContent=`Jami qadamlar: ${steps.length}`;
     stage.classList.add('active');
-    clearHighlights();
-  }
-
-  function buildSteps(){
-    steps=[];
-    for(let i=0;i<m;i++){
-      for(let j=0;j<p;j++){
-        for(let k=0;k<n;k++){
-          steps.push({i,j,k, isLast:k===n-1});
-        }
-      }
-    }
-  }
-
-  function clearHighlights(){
-    [cellsA,cellsB].forEach(mat=>mat.forEach(row=>row.forEach(c=>c.classList.remove('hi-row','hi-col','hi-both'))));
-    cellsC.forEach(row=>row.forEach(c=>c.classList.remove('active')));
   }
 
   function doStep(){
     if(stepIdx>=steps.length){ playing=false; playBtn.textContent='▶ Boshlash'; clearTimeout(timer); statusEl.textContent='Tugallandi ✓'; return; }
-    const {i,j,k,isLast} = steps[stepIdx];
-    clearHighlights();
-    // highlight row i of A up to k, col j of B up to k
-    for(let kk=0; kk<=k; kk++){
-      cellsA[i][kk].classList.add(kk===k?'hi-both':'hi-row');
-      cellsB[kk][j].classList.add(kk===k?'hi-both':'hi-col');
-    }
-    cellsC[i][j].classList.add('active');
+    const s=steps[stepIdx];
+    clearHi();
 
-    // accumulate partial sum
-    let partial=0;
-    let terms=[];
-    for(let kk=0; kk<=k; kk++){
-      partial += A[i][kk]*B[kk][j];
-      terms.push(`<span class="term">${A[i][kk]}×${B[kk][j]}</span>`);
-    }
-    workExpr.innerHTML = `C[${i+1}][${j+1}] = ${terms.join(' + ')} <span class="eq">= ${partial}</span>`;
+    if(s.type==='as'){
+      cellsA[s.i][s.j].classList.add('hi-both'); cellsB[s.i][s.j].classList.add('hi-both');
+      cellsResult[s.i][s.j].classList.add('active');
+      const val = mode==='add' ? A[s.i][s.j]+B[s.i][s.j] : A[s.i][s.j]-B[s.i][s.j];
+      const sym = mode==='add' ? '+' : '−';
+      workExpr.innerHTML=`C[${s.i+1}][${s.j+1}] = <span class="term">${A[s.i][s.j]}</span> ${sym} <span class="term">${B[s.i][s.j]}</span> <span class="eq">= ${val}</span>`;
+      result[s.i][s.j]=val; cellsResult[s.i][s.j].textContent=val; cellsResult[s.i][s.j].classList.add('filled');
+      statusEl.textContent=`Qadam ${stepIdx+1}/${steps.length} — C[${s.i+1}][${s.j+1}]`;
 
-    if(isLast){
-      C[i][j]=partial;
-      cellsC[i][j].textContent=partial;
-      cellsC[i][j].classList.add('filled');
-    }
+    } else if(s.type==='mul'){
+      for(let kk=0;kk<=s.k;kk++){
+        cellsA[s.i][kk].classList.add(kk===s.k?'hi-both':'hi-row');
+        cellsB[kk][s.j].classList.add(kk===s.k?'hi-both':'hi-col');
+      }
+      cellsResult[s.i][s.j].classList.add('active');
+      let partial=0, terms=[];
+      for(let kk=0;kk<=s.k;kk++){ partial+=A[s.i][kk]*B[kk][s.j]; terms.push(`<span class="term">${A[s.i][kk]}×${B[kk][s.j]}</span>`); }
+      workExpr.innerHTML=`C[${s.i+1}][${s.j+1}] = ${terms.join(' + ')} <span class="eq">= ${partial}</span>`;
+      if(s.isLast){ result[s.i][s.j]=partial; cellsResult[s.i][s.j].textContent=partial; cellsResult[s.i][s.j].classList.add('filled'); }
+      statusEl.textContent=`Qadam ${stepIdx+1}/${steps.length} — C[${s.i+1}][${s.j+1}] hisoblanmoqda`;
 
-    statusEl.textContent = `Qadam ${stepIdx+1} / ${steps.length} — C[${i+1}][${j+1}] hisoblanmoqda`;
+    } else if(s.type==='t'){
+      cellsA[s.i][s.j].classList.add('hi-both'); cellsResult[s.j][s.i].classList.add('active');
+      const val=A[s.i][s.j];
+      workExpr.innerHTML=`Aᵀ[${s.j+1}][${s.i+1}] = A[${s.i+1}][${s.j+1}] <span class="eq">= ${val}</span>`;
+      result[s.j][s.i]=val; cellsResult[s.j][s.i].textContent=val; cellsResult[s.j][s.i].classList.add('filled');
+      statusEl.textContent=`Qadam ${stepIdx+1}/${steps.length}`;
+
+    } else if(s.type==='det'){
+      const n=s.n, j=s.j;
+      for(let jj=0;jj<n;jj++) cellsA[0][jj].classList.add(jj===j?'hi-both':'dim');
+      for(let ii=1;ii<n;ii++) for(let jj=0;jj<n;jj++) if(jj!==j) cellsA[ii][jj].classList.add('hi-col'); else cellsA[ii][jj].classList.add('dim');
+      cellsResult[0][0].classList.add('active');
+      const sign=(j%2===0)?1:-1;
+      const min=minor(A,0,j); const md=determinant(min);
+      const term=sign*A[0][j]*md;
+      window._detAcc = (j===0? term : (window._detAcc||0)+term);
+      workExpr.innerHTML=`(-1)<sup>1+${j+1}</sup> · a<sub>1${j+1}</sub> · det(M<sub>1${j+1}</sub>) = ${sign>0?'':'-'}${A[0][j]} × ${md} = ${term}<br>M<sub>1${j+1}</sub> = ${miniMat(min)}<br><span class="eq">Yig'indi shu paytgacha: ${window._detAcc}</span>`;
+      if(j===n-1){ result[0][0]=window._detAcc; cellsResult[0][0].textContent=window._detAcc; cellsResult[0][0].classList.add('filled'); detValue=window._detAcc; }
+      statusEl.textContent=`Had ${j+1}/${n}`;
+
+    } else if(s.type==='cof'){
+      const n=s.n;
+      for(let jj=0;jj<n;jj++) cellsA[s.i][jj].classList.add('dim');
+      for(let ii=0;ii<n;ii++) cellsA[ii][s.j] && cellsA[ii][s.j].classList.add('dim');
+      cellsA[s.i][s.j].classList.add('hi-both');
+      cellsCof[s.i][s.j].classList.add('active');
+      const min=minor(A,s.i,s.j); const md=determinant(min);
+      const sign=((s.i+s.j)%2===0)?1:-1; const val=sign*md;
+      workExpr.innerHTML=`C<sub>${s.i+1}${s.j+1}</sub> = (-1)<sup>${s.i+1}+${s.j+1}</sup> · det(M<sub>${s.i+1}${s.j+1}</sub>) = ${sign>0?'':'-'}${md} <span class="eq">= ${val}</span><br>M<sub>${s.i+1}${s.j+1}</sub> = ${miniMat(min)}`;
+      cof[s.i][s.j]=val; cellsCof[s.i][s.j].textContent=val; cellsCof[s.i][s.j].classList.add('filled');
+      statusEl.textContent=`Kofaktor ${stepIdx+1}/${s.n*s.n}`;
+
+    } else if(s.type==='adjt'){
+      cellsCof[s.i][s.j].classList.add('hi-both'); cellsAdj[s.j][s.i].classList.add('active');
+      const val=cof[s.i][s.j];
+      workExpr.innerHTML=`Adj[${s.j+1}][${s.i+1}] = C[${s.i+1}][${s.j+1}] <span class="eq">= ${val}</span>`;
+      adj[s.j][s.i]=val; cellsAdj[s.j][s.i].textContent=val; cellsAdj[s.j][s.i].classList.add('filled');
+      statusEl.textContent=`Transponirlash: qadam ${stepIdx+1}`;
+
+    } else if(s.type==='detinfo'){
+      detValue=determinant(A);
+      if(detValue===0){
+        workExpr.innerHTML=`det(A) = 0 — <span class="term">teskari matritsa mavjud emas!</span>`;
+      } else {
+        workExpr.innerHTML=`det(A) = <span class="eq">${detValue}</span>. Endi A⁻¹ = (1/det(A)) · Adjugat`;
+      }
+      statusEl.textContent=`Determinant hisoblandi`;
+
+    } else if(s.type==='div'){
+      cellsAdj[s.i][s.j].classList.add('hi-both'); cellsResult[s.i][s.j].classList.add('active');
+      if(detValue===0){
+        workExpr.textContent='Determinant 0 bo\'lgani uchun bo\'lish mumkin emas.';
+      } else {
+        const val = adj[s.i][s.j]/detValue;
+        const rounded = Math.round(val*1000)/1000;
+        workExpr.innerHTML=`A⁻¹[${s.i+1}][${s.j+1}] = ${adj[s.i][s.j]} / ${detValue} <span class="eq">= ${rounded}</span>`;
+        result[s.i][s.j]=rounded; cellsResult[s.i][s.j].textContent=rounded; cellsResult[s.i][s.j].classList.add('filled');
+      }
+      statusEl.textContent=`Bo'lish: qadam ${stepIdx+1}`;
+    }
     stepIdx++;
   }
 
   function play(){
-    if(stepIdx>=steps.length){ return; }
-    playing=true;
-    playBtn.textContent='⏸ To\'xtatish';
-    const loop=()=>{
-      if(!playing) return;
-      doStep();
-      if(stepIdx>=steps.length){ playing=false; playBtn.textContent='▶ Boshlash'; return; }
-      timer=setTimeout(loop, parseInt(speedRange.value,10));
-    };
+    if(stepIdx>=steps.length) return;
+    playing=true; playBtn.textContent='⏸ To\'xtatish';
+    const loop=()=>{ if(!playing) return; doStep(); if(stepIdx>=steps.length){ playing=false; playBtn.textContent='▶ Boshlash'; return;} timer=setTimeout(loop,parseInt(speedRange.value,10)); };
     loop();
   }
-  function pause(){
-    playing=false;
-    playBtn.textContent='▶ Boshlash';
-    clearTimeout(timer);
-  }
+  function pause(){ playing=false; playBtn.textContent='▶ Boshlash'; clearTimeout(timer); }
 
-  genBtn.addEventListener('click', generate);
-  playBtn.addEventListener('click', ()=>{
-    if(stepIdx>=steps.length){ // restart
-      C=Array.from({length:m},()=>Array.from({length:p},()=>0));
-      cellsC=buildMatrix(matC,m,p,false,C);
-      stepIdx=0;
-    }
+  playBtn.addEventListener('click',()=>{
+    if(stepIdx>=steps.length){ generate(); return; }
     if(playing) pause(); else play();
   });
-  stepBtn.addEventListener('click', ()=>{ pause(); doStep(); });
-  resetBtn.addEventListener('click', ()=>{
-    pause();
-    stepIdx=0;
-    C=Array.from({length:m},()=>Array.from({length:p},()=>0));
-    cellsC=buildMatrix(matC,m,p,false,C);
-    clearHighlights();
-    workExpr.textContent='Boshlash tugmasini bosing.';
-    statusEl.textContent=`Jami qadamlar: ${steps.length}`;
-  });
+  stepBtn.addEventListener('click',()=>{ pause(); doStep(); });
+  resetBtn.addEventListener('click',()=>{ generate(); });
 
   generate();
 })();
